@@ -11,6 +11,13 @@ module.exports = function(app) {
   app.post("/posts", (req, res, next) => {
     const { body } = req;
     body.id = posts.length + 1;
+    posts.sort();
+    console.log(posts)
+    posts.find(id => {
+      if(id.id === body.id){
+        body.id = id.id + 1;
+      }
+    })
     fs.readFile(__dirname + "/posts.json", function(error, file) {
       let parsedFile = JSON.parse(file);
       parsedFile = req.body;
