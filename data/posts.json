@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "autor": "Ivan Vila",
+    "body": "Code your future"
+  },
+  {
+    "id": 2,
+    "autor": "Juan Ramirez",
+    "body": "Test Code Your Future"
+  },
+  {
+    "id": 3,
+    "autor": "Helen Vila",
+    "body": "Test"
+  }
+]
