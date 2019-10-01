@@ -1,17 +1,26 @@
 "use strict";
-let fs = require("fs");
+
+const fs = require("fs");
+const posts = require(__dirname + "/posts.json");
 
 module.exports = function(app) {
   app.get("/posts", (req, res, next) => {
-    return res.status(200).json(posts);
+    res.sendFile(__dirname + "/posts.json");
   });
 
   app.post("/posts", (req, res, next) => {
     const { body } = req;
     body.id = posts.length + 1;
-    posts.push(body);
-    console.log(posts);
-    return res.status(201).json(body);
+    fs.readFile(__dirname + "/posts.json", function(error, file) {
+      let parsedFile = JSON.parse(file);
+      parsedFile = req.body;
+      posts.push(parsedFile);
+      let data = JSON.stringify(posts);
+      fs.writeFile(__dirname + "/posts.json", data, error => {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+      });
+    });
   });
 
   app.get("/posts/:id", (req, res, next) => {
@@ -31,12 +40,20 @@ module.exports = function(app) {
     if (isNaN(id)) {
       return res.status(400).json("Invalid param");
     }
-    const copy = [...posts];
-    posts = posts.filter(element => element.id !== parseInt(id, 10));
-    if (copy.length > posts.length) {
-      return res.status(200).json(posts);
-    }
-    return res.status(404).json("Not found");
+    fs.readFile(__dirname + "/posts.json", function(error, file) {
+      let parsedFile = JSON.parse(file);
+      parsedFile = parsedFile.filter(element => element.id !== parseInt(id, 10));
+      let data = JSON.stringify(parsedFile);
+      const copy = [...posts];
+      fs.writeFile(__dirname + "/posts.json", data, error => {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+      });
+      if (copy.length > parsedFile.length) {
+        return res.status(200).json(parsedFile);
+      }
+      return res.status(404).json("Not found");
+    });
   });
 
   app.put("/posts/:id", (req, res, next) => {
@@ -45,13 +62,25 @@ module.exports = function(app) {
     if (isNaN(id)) {
       return res.status(400).json("Invalid param");
     }
-    let post = posts.map(element => {
-      if (element.id === parseInt(id, 10)) {
-        element.autor = autor;
-        element.body = body;
-      }
-      return element;
+    fs.readFile(__dirname + "/posts.json", function(error, file) {
+      let parsedFile = JSON.parse(file);
+      parsedFile = parsedFile.map(element => {
+        if(element.id === parseInt(id, 10)){
+          element.autor = autor;
+          element.body = body;
+          return element;
+        }
+        else{
+          return element;
+        }
+      });
+      console.log(parsedFile);
+      let data = JSON.stringify(parsedFile);
+      fs.writeFile(__dirname + "/posts.json", data, error => {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+      });
+      return res.status(200).json(parsedFile);
     });
-    return res.status(200).json(posts);
   });
 };
